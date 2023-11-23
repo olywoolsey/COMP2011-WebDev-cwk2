@@ -1,6 +1,8 @@
-from app import app
+import os
 
-# Starts the app
-if __name__=="__main__":
-    app.debug=True
-    app.run(debug=True)
+WTF_CSRF_ENABLED = True
+SECRET_KEY = 'a-very-secret-secret'
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+SQLALCHEMY_TRACK_MODIFICATIONS = True 
