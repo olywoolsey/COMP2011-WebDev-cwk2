@@ -1,10 +1,8 @@
-from app import app
+app = Flask(__name__)
 
 @app.route('/')
-def Welcome():
-    return "Welcome to Flask App!"
+def home():
+    return "Hello, World!"
 
-# Starts the app
-if __name__=="__main__":
-    app.debug=True
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run()
