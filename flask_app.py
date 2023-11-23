@@ -1,7 +1,6 @@
 from app import app
 
-# create a route for the app
-# this is the index page
+@app.route('/')
 def index():
     return "Hello, World!"
 
