@@ -2,7 +2,7 @@ from flask import Flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, DeleteAccountForm
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -27,13 +27,16 @@ def checkUser():
 @app.route('/')
 def hello_world():
     if checkUser():
-        return render_template('index.html')
+        return redirect(url_for('home'))
     else:
-        return redirect(url_for('login'))
+        return render_template('index.html')
 
 @app.route('/home')
 def home():
-    return render_template('index.html')
+    if checkUser():
+        return render_template('home.html')
+    else:
+        return render_template('index.html')
 
 # login page
 @app.route('/login', methods=('GET', 'POST'))
@@ -54,6 +57,7 @@ def login():
         flash('Logged in successfully')
         # Add the user to the session to keep them logged in
         session['logged_in'] = True
+        session['username'] = user.username
         session.permanent = True
         return redirect(url_for('home'))
     return render_template('login.html', form=form)
@@ -76,14 +80,38 @@ def register():
             user = User(username=form.username.data,
                     email=form.email.data,
                     password=form.password2.data)
-            print(user)
-            print(user.username)
-            print(user.email)
             db.session.add(user)
             db.session.commit()
-            print("User added")
+            session['logged_in'] = True
+            session['username'] = user.username
+            session.permanent = True
             return redirect(url_for('login'))
     return render_template('register.html', form=form)
+
+@app.route('/logout')
+def logout():
+    # Clear the session data
+    session["logged_in"] = False
+
+    # Redirect to the home page or any other desired page
+    return redirect(url_for('home'))
+
+@app.route('/delete_account', methods=('GET', 'POST'))
+def delete_account():
+    form = DeleteAccountForm()
+    if form.validate_on_submit():
+        username = session['username']
+        user = User.query.filter_by(username=username).first()
+        if form.password.data != form.confirm.data:
+            flash('Passwords do not match')
+        elif user.password != form.password.data:
+            flash('Invalid password')
+        elif user.password == form.password.data:
+            db.session.delete(user)
+            db.session.commit()
+            return redirect(url_for('logout'))
+        return redirect(url_for('delete_account'))
+    return render_template('delete_account.html', form=form)
 
 # run app on local device for testing
 if __name__=="__main__":

@@ -4,7 +4,8 @@
   <title>Register</title>
 </head>
 <body>
-  <form method='post' name="CreateNewIncome">
+  <h1>Register</h1>
+  <form method='post' name="Register">
     {{ form.hidden_tag() }}
     <div>
       <label for="name">Name:</label>
@@ -24,9 +25,10 @@
       {{ form.password2 }}
     </div>
     <div>
-      <br>
       <input type="submit" id="submit" name="submit" value="Submit">
     </div>
   </form>
+  <p>Already have an account?</p>
+  <a href="{{ url_for('login') }}">Login</a>
 </body>
 </html>

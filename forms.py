@@ -11,3 +11,8 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired()])
     password1 = StringField('Password', validators=[DataRequired()])
     password2 = StringField('Password', validators=[DataRequired()])
+
+class DeleteAccountForm(FlaskForm):
+    password = StringField('Password', validators=[DataRequired()])
+    confirm = StringField('Confirm', validators=[DataRequired()])
+

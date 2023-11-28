@@ -1,25 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+  <title>Delete Account</title>
 </head>
 <body>
-  <h1>Login</h1>
-  <form method='post' name="Login">
+  <h1>Delete Account</h1>
+  <form method='post' name="DeleteAccountForm">
     {{ form.hidden_tag() }}
-    <div>
-      <label for="identifier">Username or Email:</label>
-      {{ form.identifier }}
-    </div>
     <div>
       <label for="password">Password:</label>
       {{ form.password }}
     </div>
-      {{ get_flashed_messages()[0] }}
+    <div>
+      <label for="confirm">Password:</label>
+      {{ form.confirm }}
+    </div>
     <div>
       <input type="submit" id="submit" name="submit" value="Submit">
     </div>
   </form>
-  <a href="{{ url_for('register') }}">Register</a>
 </body>
 </html>
