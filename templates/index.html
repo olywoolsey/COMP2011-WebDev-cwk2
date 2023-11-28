@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Landing</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
     <h1>index</h1>
     <a href="{{ url_for('login') }}">Login</a>
     <a href="{{ url_for('register') }}">Register</a>
-</body>
-</html>
+{% endblock %}

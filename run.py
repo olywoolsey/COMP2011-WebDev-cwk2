@@ -78,14 +78,14 @@ def register():
             return redirect(url_for('register'))
         else:
             user = User(username=form.username.data,
-                    email=form.email.data,
-                    password=form.password2.data)
+                        email=form.email.data,
+                        password=form.password2.data)
             db.session.add(user)
             db.session.commit()
             session['logged_in'] = True
             session['username'] = user.username
             session.permanent = True
-            return redirect(url_for('login'))
+            return redirect(url_for('home'))
     return render_template('register.html', form=form)
 
 @app.route('/logout')
