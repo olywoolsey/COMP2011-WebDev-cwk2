@@ -1,11 +1,10 @@
 from flask import Flask
-from app import app
 
 app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Hello from Flask!'
+    return render_template('index.html')
 
 @app.route('/index')
 def index():
