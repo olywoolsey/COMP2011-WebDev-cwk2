@@ -17,13 +17,16 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
 
 # see if user is logged in
-def checkuser():
-    return True
+def checkUser():
+    if session.get('logged_in'):
+        return True
+    else:
+        return False
 
 # landing page
 @app.route('/')
 def hello_world():
-    if checkuser():
+    if checkUser():
         return render_template('index.html')
     else:
         return redirect(url_for('login'))
@@ -49,6 +52,9 @@ def login():
             flash('Invalid password')
             return redirect(url_for('login'))
         flash('Logged in successfully')
+        # Add the user to the session to keep them logged in
+        session['logged_in'] = True
+        session.permanent = True
         return redirect(url_for('home'))
     return render_template('login.html', form=form)
 
@@ -57,22 +63,26 @@ def login():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        print(form.username.data)
-        print(form.email.data)
-        print(form.password1.data)
-        print(form.password2.data)
-        ## user = User(username=form.username.data,
-        ##         email=form.email.data,
-        ##         password1=form.password1.data,
-        ##         password2=form.password2.data)
-        ## print(user)
-        ## print(user.username)
-        ## print(user.email)
-        ## db.session.add(user)
-        ## db.session.commit()
-        flash('Thanks for registering')
-        print('Thanks for registering')
-        return redirect(url_for('login'))
+        if form.password1.data != form.password2.data:
+            flash('Passwords do not match')
+            return redirect(url_for('register'))
+        elif User.query.filter_by(username=form.username.data).first() is not None:
+            flash('Username already exists')
+            return redirect(url_for('register'))
+        elif User.query.filter_by(email=form.email.data).first() is not None:
+            flash('Email already exists')
+            return redirect(url_for('register'))
+        else:
+            user = User(username=form.username.data,
+                    email=form.email.data,
+                    password=form.password2.data)
+            print(user)
+            print(user.username)
+            print(user.email)
+            db.session.add(user)
+            db.session.commit()
+            print("User added")
+            return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
 # run app on local device for testing
