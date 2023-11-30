@@ -125,9 +125,9 @@ def change_profile_picture():
             f = request.files['profile_picture']
             filename = secure_filename(session['username'] + '.jpg')
             # delete old profile picture
-            if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            if os.path.exists(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)):
+                os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+            f.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
     return "Profile Picture Changed"
 
 # run app on local device for testing
