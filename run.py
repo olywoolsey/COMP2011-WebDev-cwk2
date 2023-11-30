@@ -1,13 +1,18 @@
 from flask import Flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Resource, Api
 from flask_migrate import Migrate
+from werkzeug.utils import secure_filename
+import os
 from forms import LoginForm, RegistrationForm, DeleteAccountForm
 
 app = Flask(__name__)
 app.config.from_object('config')
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+api = Api(app)
 
 # database model
 class User(db.Model):
@@ -34,7 +39,8 @@ def hello_world():
 @app.route('/home')
 def home():
     if checkUser():
-        return render_template('home.html')
+        picture = './static/uploads/' + session['username'] + '.jpg'
+        return render_template('home.html', profile_picture=picture)
     else:
         return render_template('index.html')
 
@@ -92,7 +98,6 @@ def register():
 def logout():
     # Clear the session data
     session["logged_in"] = False
-
     # Redirect to the home page or any other desired page
     return redirect(url_for('home'))
 
@@ -112,6 +117,18 @@ def delete_account():
             return redirect(url_for('logout'))
         return redirect(url_for('delete_account'))
     return render_template('delete_account.html', form=form)
+
+@app.route('/change_profile_picture', methods=('GET', 'POST'))
+def change_profile_picture():
+    if checkUser():
+        if request.method == 'POST':
+            f = request.files['profile_picture']
+            filename = secure_filename(session['username'] + '.jpg')
+            # delete old profile picture
+            if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return "Profile Picture Changed"
 
 # run app on local device for testing
 if __name__=="__main__":
