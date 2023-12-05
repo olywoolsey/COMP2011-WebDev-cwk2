@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Create Event{% endblock %}
+{% block content %}
+<h1>New Event</h1>
+  <form method='post' name="Login">
+    {{ form.hidden_tag() }}
+    <div>
+      <label for="name">Event Name</label>
+      {{ form.name }}
+    </div>
+    <div>
+      <label for="description">Event Description</label>
+      {{ form.description }}
+    </div>
+    <div>
+      <label for="location">Event Location</label>
+      {{ form.location }}
+    </div>
+    <div>
+      <label for="datetime">Event Date and time</label>
+      {{ form.datetime }}
+    </div>
+    <div>
+      <label for="guests">Event Guests</label>
+      {{ form.guests }}
+    </div>
+    <div>
+      <input type="submit" id="submit" name="submit" value="Submit">
+    </div>
+  </form>
+{% endblock %}

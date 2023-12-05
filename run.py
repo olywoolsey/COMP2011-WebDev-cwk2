@@ -5,7 +5,7 @@ from flask_restful import Resource, Api
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 import os
-from forms import LoginForm, RegistrationForm, DeleteAccountForm
+from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -13,13 +13,7 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 api = Api(app)
-
-# database model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), index=True, unique=True)
-    password = db.Column(db.String(32), index=True, unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
+from models import User, Event, Friend, EventFriend
 
 # see if user is logged in
 def checkUser():
@@ -49,8 +43,6 @@ def home():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        print(form.identifier.data)
-        print(form.password.data)
         user = User.query.filter_by(username=form.identifier.data).first()
         if user is None:
             user = User.query.filter_by(email=form.identifier.data).first()
@@ -124,11 +116,55 @@ def change_profile_picture():
         if request.method == 'POST':
             f = request.files['profile_picture']
             filename = secure_filename(session['username'] + '.jpg')
-            # delete old profile picture
-            if os.path.exists(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)):
-                os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
             f.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
     return "Profile Picture Changed"
+
+@app.route('/create_event', methods=('GET', 'POST'))
+def create_event(): 
+    form = NewEventForm()
+    if checkUser():
+        if form.validate_on_submit():
+            print(form.name.data)
+            print(form.description.data)
+            print(form.location.data)
+            print(form.datetime.data)
+            print(form.guests.data)
+            return redirect(url_for('home'))
+        return render_template('create_event.html', form=form)
+    else:
+        return render_template('index.html')
+
+@app.route('/friends', methods=('GET', 'POST'))
+def friends():
+    form = NewFriendForm()
+    if checkUser():
+        print(form.username.data)
+        if form.validate_on_submit():
+            print(form.username.data)
+            if User.query.filter_by(username=form.username.data).first() is None:
+                flash('User does not exist')
+            else:
+                id1 = User.query.filter_by(username=session['username']).first().id
+                id2 = User.query.filter_by(username=form.username.data).first().id
+                friend = Friend(user_id1=id1, user_id2=id2, status=0)
+                db.session.add(friend)
+                db.session.commit()
+                print("Friend added")
+        # print(Friend.query.filter_by(user_id1=User.query.filter_by(username=session['username']).first().id).all())
+        print(Friend)
+        # print(Friend.query.filter_by(user_id1=User.query.filter_by(username=session['username']).id()))
+              # user_id2=User.query.filter_by(username=session['username']).id()).all()
+        return render_template('friends.html', form=form)
+    else:
+        return redirect(url_for('home'))
+
+@app.route('/settings', methods=('GET', 'POST'))
+def settings():
+    if checkUser():
+        return render_template('settings.html')
+    else:
+        return render_template('index.html')
+
 
 # run app on local device for testing
 if __name__=="__main__":

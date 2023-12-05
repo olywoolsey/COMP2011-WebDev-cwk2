@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Friends{% endblock %}
+{% block content %}
+  <h1>Friends</h1>
+
+    <form method='post' name="NewFriend">
+    <div>
+      <label for="username">Enter Username</label>
+      {{ form.username }}
+    </div>
+    {{ get_flashed_messages()[0] }}
+    <div>
+      <input type="submit" id="submit" name="submit" value="Submit">
+    </div>
+    {% for friend in friends %}
+      <p>{{ friend }}</p>
+    {% endfor %}
+{% endblock %}

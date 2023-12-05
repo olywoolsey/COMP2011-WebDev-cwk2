@@ -10,7 +10,6 @@ function changeProfilePicture() {
     const formData = new FormData();
     formData.append('profile_picture', file);
     // Send an AJAX request to the server to change the profile picture
-    alert('Uploading profile picture...');
     fetch('/change_profile_picture', {
       method: 'POST',
       body: formData
