@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 {% block title %}Settings{% endblock %}
 {% block content %}
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/create_event">New Event</a>
+    <a href="/friends">Friends</a>
+    <a href="/settings">Settings</a>
+  </nav>
 <h1>Settings</h1>
-
   <a href="/change_username">Change Username</a>
   <a href="/delete_account">Delete Account</a>
   <a href="/logout">Logout</a>
-
 {% endblock %}

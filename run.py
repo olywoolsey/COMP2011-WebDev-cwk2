@@ -58,7 +58,8 @@ def hello_world():
 @app.route('/home')
 def home():
     if checkUser():
-        picture = './static/uploads/' + session['username'] + '.jpg'
+        username = User.query.filter_by(id=session['userID']).first().username
+        picture = './static/uploads/' + username + '.jpg'
         return render_template('home.html', profile_picture=picture)
     else:
         return render_template('index.html')
@@ -80,7 +81,7 @@ def login():
         flash('Logged in successfully')
         # Add the user to the session to keep them logged in
         session['logged_in'] = True
-        session['username'] = user.username
+        session['userID'] = user.id
         session.permanent = True
         return redirect(url_for('home'))
     return render_template('login.html', form=form)
@@ -106,7 +107,7 @@ def register():
             db.session.add(user)
             db.session.commit()
             session['logged_in'] = True
-            session['username'] = user.username
+            session['userID'] = User.query.filter_by(username=form.username.data).first().id
             session.permanent = True
             return redirect(url_for('home'))
     return render_template('register.html', form=form)
@@ -122,7 +123,7 @@ def logout():
 def delete_account():
     form = DeleteAccountForm()
     if form.validate_on_submit():
-        username = session['username']
+        username = User.query.filter_by(id=session['userID']).first().username
         user = User.query.filter_by(username=username).first()
         if form.password.data != form.confirm.data:
             flash('Passwords do not match')
@@ -140,7 +141,8 @@ def change_profile_picture():
     if checkUser():
         if request.method == 'POST':
             f = request.files['profile_picture']
-            filename = secure_filename(session['username'] + '.jpg')
+            username = User.query.filter_by(id=session['userID']).first().username
+            filename = secure_filename(username + '.jpg')
             f.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
     return "Profile Picture Changed"
 
