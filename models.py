@@ -1,4 +1,17 @@
-from app import db
+from flask import Flask
+from flask import Flask, render_template, redirect, url_for, flash, request, session
+from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Resource, Api
+from flask_migrate import Migrate
+from werkzeug.utils import secure_filename
+import os
+
+app = Flask(__name__)
+app.config.from_object('config')
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+api = Api(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
