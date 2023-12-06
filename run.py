@@ -1,11 +1,13 @@
 from flask import Flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_, case
 from flask_restful import Resource, Api
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 import os
-from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm
+from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm
+# from forms import *
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -163,25 +165,82 @@ def create_event():
 
 @app.route('/friends', methods=('GET', 'POST'))
 def friends():
-    form = NewFriendForm()
+    formNew = NewFriendForm()
+    formRemove = RemoveFriendForm()
+    formAccept = AcceptFriendForm()
+    formReject = RejectFriendForm()
+    formCancel = CancelFriendForm()
     if checkUser():
-        print(form.username.data)
-        if form.validate_on_submit():
-            print(form.username.data)
-            if User.query.filter_by(username=form.username.data).first() is None:
+        if formNew.validate_on_submit():
+            if User.query.filter_by(username=formNew.username.data).first() is None:
                 flash('User does not exist')
+            elif User.query.filter_by(username=formNew.username.data).first().id == session['userID']:
+                flash('Cannot add yourself')
+            elif Friend.query.filter_by(user_id1=session['userID'], user_id2=User.query.filter_by(username=formNew.username.data).first().id).first() is not None:
+                flash('Friend already added')
+            elif Friend.query.filter_by(user_id2=session['userID'], user_id1=User.query.filter_by(username=formNew.username.data).first().id).first() is not None:
+                flash('Friend already added')
             else:
-                id1 = User.query.filter_by(username=session['username']).first().id
-                id2 = User.query.filter_by(username=form.username.data).first().id
+                id1 = session['userID']
+                id2 = User.query.filter_by(username=formNew.username.data).first().id
                 friend = Friend(user_id1=id1, user_id2=id2, status=0)
                 db.session.add(friend)
                 db.session.commit()
-                print("Friend added")
-        # print(Friend.query.filter_by(user_id1=User.query.filter_by(username=session['username']).first().id).all())
-        print(Friend)
-        # print(Friend.query.filter_by(user_id1=User.query.filter_by(username=session['username']).id()))
-              # user_id2=User.query.filter_by(username=session['username']).id()).all()
-        return render_template('friends.html', form=form)
+        elif formRemove.validate_on_submit():
+            try:
+                friends = Friend.query.filter_by(user_id1=session['userID'], user_id2=formRemove.remove_friend_id.data).first()
+                db.session.delete(friends)
+            except:
+                friends = Friend.query.filter_by(user_id2=session['userID'], user_id1=formRemove.remove_friend_id.data).first()
+                db.session.delete(friends)
+            db.session.commit()
+        elif formAccept.validate_on_submit():
+            friendship = Friend.query.filter_by(user_id2=session['userID'], user_id1=formAccept.accept_friend_id.data).first()
+            friendship.status = 1
+            db.session.commit()
+        elif formReject.validate_on_submit():
+            try:
+                friends = Friend.query.filter_by(user_id1=session['userID'], user_id2=formReject.reject_friend_id.data).first()
+                db.session.delete(friends)
+            except:
+                friends = Friend.query.filter_by(user_id2=session['userID'], user_id1=formReject.reject_friend_id.data).first()
+                db.session.delete(friends)
+            db.session.commit()
+        elif formCancel.validate_on_submit():
+            try:
+                friends = Friend.query.filter_by(user_id1=session['userID'], user_id2=formCancel.cancel_friend_id.data).first()
+                db.session.delete(friends)
+            except:
+                friends = Friend.query.filter_by(user_id2=session['userID'], user_id1=formCancel.cancel_friend_id.data).first()
+                db.session.delete(friends)
+            db.session.commit()
+        friends = Friend.query.filter(
+            or_(Friend.user_id1 == session['userID'], Friend.user_id2 == session['userID'])
+        ).all()
+        friendsList = []
+        friendsRequestRecieved = []
+        friendsRequestSent = []
+        for i in friends:
+            if i.status == 1:
+                if i.user_id1 == session['userID']:
+                    friendsList.append(User.query.filter_by(id=i.user_id2).first())
+                else:
+                    friendsList.append(User.query.filter_by(id=i.user_id1).first())
+            elif i.status == 0:
+                if i.user_id1 == session['userID']:
+                    friendsRequestSent.append(User.query.filter_by(id=i.user_id2).first())
+                else:
+                    friendsRequestRecieved.append(User.query.filter_by(id=i.user_id1).first())
+        return render_template('friends.html',
+                               username=User.query.filter_by(id=session['userID']).first().username,
+                               formNew=formNew,
+                               formRemove=formRemove,
+                               formAccept=formAccept,
+                               formReject=formReject,
+                               formCancel=formCancel,
+                               friendsList=friendsList,
+                               friendsRequestSent=friendsRequestSent,
+                               friendsRequestRecieved=friendsRequestRecieved)
     else:
         return redirect(url_for('home'))
 

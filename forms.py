@@ -27,3 +27,14 @@ class NewEventForm(FlaskForm):
 class NewFriendForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
 
+class AcceptFriendForm(FlaskForm):
+    accept_friend_id = IntegerField('ID', validators=[DataRequired()])
+
+class RejectFriendForm(FlaskForm):
+    reject_friend_id = IntegerField('ID', validators=[DataRequired()])
+
+class RemoveFriendForm(FlaskForm):
+    remove_friend_id = IntegerField('ID', validators=[DataRequired()])
+
+class CancelFriendForm(FlaskForm):
+    cancel_friend_id = IntegerField('ID', validators=[DataRequired()])
