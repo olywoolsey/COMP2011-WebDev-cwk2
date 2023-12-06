@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Friends{% endblock %}
+{% block content %}
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/create_event">New Event</a>
+    <a href="/friends">Friends</a>
+    <a href="/settings">Settings</a>
+    <p>Logged in as {{ username }}</p>
+  </nav>
+
+  <h1>Friends</h1>
+    <form method='post' name="NewFriend">
+    {{ formNew.hidden_tag() }}
+    <div>
+      <label for="username">Enter Username</label>
+      {{ formNew.username }}
+    </div>
+    {{ get_flashed_messages()[0] }}
+    <div>
+      <input type="submit" id="submit" name="submit" value="Submit">
+    </div>
+  </form>
+
+  <h2>Friends List</h2>
+  {% if friendsList|length == 0 %}
+    <p>No friends yet</p>
+  {% else %}
+    {% for friend in friendsList %}
+      <div>
+        <p>{{ friend.username }}</p>
+        <form method='post' name="RemoveFriend">
+          {{ formRemove.hidden_tag() }}
+          <input type="hidden" name="remove_friend_id" value="{{ friend.id }}">
+          <div>
+            <input type="submit" id="submit" name="submit" value="Remove">
+          </div>
+        </form>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if friendsRequestRecieved|length > 0 %}
+    <h2>Accept Friend Requests</h2>
+    {% for friend in friendsRequestRecieved %}
+      <div>
+        <p>{{ friend.username }}</p>
+        <form method='post' name="AcceptFriend">
+          {{ formAccept.hidden_tag() }}
+          <input type="hidden" name="accept_friend_id" value="{{ friend.id }}">
+          <div>
+            <input type="submit" id="submit" name="submit" value="Accept">
+          </div>
+        </form>
+        <form method='post' name="DeclineFriend">
+          {{ formReject.hidden_tag() }}
+          <input type="hidden" name="reject_friend_id" value="{{ friend.id }}">
+          <div>
+            <input type="submit" id="submit" name="submit" value="Decline">
+          </div>
+        </form>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <h2>Sent Friend Requests</h2>
+  {% for friend in friendsRequestSent %}
+    <div>
+      <p>{{ friend.username }}</p>
+      <form method='post' name="CancelFriend">
+        {{ formCancel.hidden_tag() }}
+        <input type="hidden" name="cancel_friend_id" value="{{ friend.id }}">
+        <div>
+          <input type="submit" id="submit" name="submit" value="Remove">
+        </div>
+      </form>
+    </div>
+  {% endfor %}
+
+{% endblock %}

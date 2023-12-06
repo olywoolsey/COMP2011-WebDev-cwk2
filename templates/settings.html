@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}Settings{% endblock %}
 {% block content %}
   <nav>
     <a href="/home">Home</a>
@@ -7,8 +7,8 @@
     <a href="/friends">Friends</a>
     <a href="/settings">Settings</a>
   </nav>
-  <h2>Calendar</h2>
-  <h2>Upcoming Events</h2>
-
-  <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
+<h1>Settings</h1>
+  <a href="/change_username">Change Username</a>
+  <a href="/delete_account">Delete Account</a>
+  <a href="/logout">Logout</a>
 {% endblock %}

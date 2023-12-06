@@ -1,11 +1,13 @@
 from flask import Flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_, case
 from flask_restful import Resource, Api
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 import os
-from forms import LoginForm, RegistrationForm, DeleteAccountForm
+from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm
+# from forms import *
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -14,12 +16,31 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 api = Api(app)
 
-# database model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), index=True, unique=True)
-    password = db.Column(db.String(32), index=True, unique=True)
+    password = db.Column(db.String(32))
     email = db.Column(db.String(120), index=True, unique=True)
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32))
+    description = db.Column(db.String(120))
+    location = db.Column(db.String(120))
+    date = db.Column(db.String(120))
+    time = db.Column(db.String(120))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class Friend(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id1 = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id2 = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status = db.Column(db.Integer)
+
+class EventFriend(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 # see if user is logged in
 def checkUser():
@@ -39,7 +60,8 @@ def hello_world():
 @app.route('/home')
 def home():
     if checkUser():
-        picture = './static/uploads/' + session['username'] + '.jpg'
+        username = User.query.filter_by(id=session['userID']).first().username
+        picture = './static/uploads/' + username + '.jpg'
         return render_template('home.html', profile_picture=picture)
     else:
         return render_template('index.html')
@@ -49,8 +71,6 @@ def home():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        print(form.identifier.data)
-        print(form.password.data)
         user = User.query.filter_by(username=form.identifier.data).first()
         if user is None:
             user = User.query.filter_by(email=form.identifier.data).first()
@@ -63,7 +83,7 @@ def login():
         flash('Logged in successfully')
         # Add the user to the session to keep them logged in
         session['logged_in'] = True
-        session['username'] = user.username
+        session['userID'] = user.id
         session.permanent = True
         return redirect(url_for('home'))
     return render_template('login.html', form=form)
@@ -89,7 +109,7 @@ def register():
             db.session.add(user)
             db.session.commit()
             session['logged_in'] = True
-            session['username'] = user.username
+            session['userID'] = User.query.filter_by(username=form.username.data).first().id
             session.permanent = True
             return redirect(url_for('home'))
     return render_template('register.html', form=form)
@@ -105,7 +125,7 @@ def logout():
 def delete_account():
     form = DeleteAccountForm()
     if form.validate_on_submit():
-        username = session['username']
+        username = User.query.filter_by(id=session['userID']).first().username
         user = User.query.filter_by(username=username).first()
         if form.password.data != form.confirm.data:
             flash('Passwords do not match')
@@ -123,12 +143,114 @@ def change_profile_picture():
     if checkUser():
         if request.method == 'POST':
             f = request.files['profile_picture']
-            filename = secure_filename(session['username'] + '.jpg')
-            # delete old profile picture
-            if os.path.exists(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)):
-                os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+            username = User.query.filter_by(id=session['userID']).first().username
+            filename = secure_filename(username + '.jpg')
             f.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
     return "Profile Picture Changed"
+
+@app.route('/create_event', methods=('GET', 'POST'))
+def create_event(): 
+    form = NewEventForm()
+    if checkUser():
+        if form.validate_on_submit():
+            print(form.name.data)
+            print(form.description.data)
+            print(form.location.data)
+            print(form.datetime.data)
+            print(form.guests.data)
+            return redirect(url_for('home'))
+        return render_template('create_event.html', form=form)
+    else:
+        return render_template('index.html')
+
+@app.route('/friends', methods=('GET', 'POST'))
+def friends():
+    formNew = NewFriendForm()
+    formRemove = RemoveFriendForm()
+    formAccept = AcceptFriendForm()
+    formReject = RejectFriendForm()
+    formCancel = CancelFriendForm()
+    if checkUser():
+        if formNew.validate_on_submit():
+            if User.query.filter_by(username=formNew.username.data).first() is None:
+                flash('User does not exist')
+            elif User.query.filter_by(username=formNew.username.data).first().id == session['userID']:
+                flash('Cannot add yourself')
+            elif Friend.query.filter_by(user_id1=session['userID'], user_id2=User.query.filter_by(username=formNew.username.data).first().id).first() is not None:
+                flash('Friend already added')
+            elif Friend.query.filter_by(user_id2=session['userID'], user_id1=User.query.filter_by(username=formNew.username.data).first().id).first() is not None:
+                flash('Friend already added')
+            else:
+                id1 = session['userID']
+                id2 = User.query.filter_by(username=formNew.username.data).first().id
+                friend = Friend(user_id1=id1, user_id2=id2, status=0)
+                db.session.add(friend)
+                db.session.commit()
+        elif formRemove.validate_on_submit():
+            try:
+                friends = Friend.query.filter_by(user_id1=session['userID'], user_id2=formRemove.remove_friend_id.data).first()
+                db.session.delete(friends)
+            except:
+                friends = Friend.query.filter_by(user_id2=session['userID'], user_id1=formRemove.remove_friend_id.data).first()
+                db.session.delete(friends)
+            db.session.commit()
+        elif formAccept.validate_on_submit():
+            friendship = Friend.query.filter_by(user_id2=session['userID'], user_id1=formAccept.accept_friend_id.data).first()
+            friendship.status = 1
+            db.session.commit()
+        elif formReject.validate_on_submit():
+            try:
+                friends = Friend.query.filter_by(user_id1=session['userID'], user_id2=formReject.reject_friend_id.data).first()
+                db.session.delete(friends)
+            except:
+                friends = Friend.query.filter_by(user_id2=session['userID'], user_id1=formReject.reject_friend_id.data).first()
+                db.session.delete(friends)
+            db.session.commit()
+        elif formCancel.validate_on_submit():
+            try:
+                friends = Friend.query.filter_by(user_id1=session['userID'], user_id2=formCancel.cancel_friend_id.data).first()
+                db.session.delete(friends)
+            except:
+                friends = Friend.query.filter_by(user_id2=session['userID'], user_id1=formCancel.cancel_friend_id.data).first()
+                db.session.delete(friends)
+            db.session.commit()
+        friends = Friend.query.filter(
+            or_(Friend.user_id1 == session['userID'], Friend.user_id2 == session['userID'])
+        ).all()
+        friendsList = []
+        friendsRequestRecieved = []
+        friendsRequestSent = []
+        for i in friends:
+            if i.status == 1:
+                if i.user_id1 == session['userID']:
+                    friendsList.append(User.query.filter_by(id=i.user_id2).first())
+                else:
+                    friendsList.append(User.query.filter_by(id=i.user_id1).first())
+            elif i.status == 0:
+                if i.user_id1 == session['userID']:
+                    friendsRequestSent.append(User.query.filter_by(id=i.user_id2).first())
+                else:
+                    friendsRequestRecieved.append(User.query.filter_by(id=i.user_id1).first())
+        return render_template('friends.html',
+                               username=User.query.filter_by(id=session['userID']).first().username,
+                               formNew=formNew,
+                               formRemove=formRemove,
+                               formAccept=formAccept,
+                               formReject=formReject,
+                               formCancel=formCancel,
+                               friendsList=friendsList,
+                               friendsRequestSent=friendsRequestSent,
+                               friendsRequestRecieved=friendsRequestRecieved)
+    else:
+        return redirect(url_for('home'))
+
+@app.route('/settings', methods=('GET', 'POST'))
+def settings():
+    if checkUser():
+        return render_template('settings.html')
+    else:
+        return render_template('index.html')
+
 
 # run app on local device for testing
 if __name__=="__main__":
