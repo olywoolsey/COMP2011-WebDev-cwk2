@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
 {% block content %}
+<body>
   <nav>
     <a href="/home">Home</a>
     <a href="/create_event">New Event</a>
     <a href="/friends">Friends</a>
     <a href="/settings">Settings</a>
   </nav>
-  <h2>Calendar</h2>
+  <h1>Calendar</h1>
   <h2>Upcoming Events</h2>
 
   <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">

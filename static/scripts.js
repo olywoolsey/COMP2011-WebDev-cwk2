@@ -31,3 +31,47 @@ function changeProfilePicture() {
   input.click();
 }
 
+function generateUserList() {
+  fetch('/get_users')
+    .then(response => response.json())
+    .then(data => {
+      var users = data.users;
+      var userListElement = document.getElementById('userList');
+
+      users.forEach(function(user) {
+        var li = document.createElement('li');
+        li.textContent = user;
+        userListElement.appendChild(li);
+      });
+    })
+    .catch(error => {
+      console.error('Error retrieving users', error);
+    });
+}
+
+function sendUserList() {
+  var userList = document.getElementById('userList').getElementsByTagName('li');
+  var selectedUsers = [];
+
+  for (var i = 0; i < userList.length; i++) {
+    selectedUsers.push(userList[i].textContent);
+  }
+
+  fetch('/users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ users: selectedUsers })
+  })
+    .then(response => {
+      if (response.ok) {
+        console.log('Users sent successfully');
+      } else {
+        console.error('Error sending users');
+      }
+    })
+    .catch(error => {
+      console.error('Error sending users', error);
+    });
+}

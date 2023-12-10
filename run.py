@@ -152,14 +152,35 @@ def change_profile_picture():
 def create_event(): 
     form = NewEventForm()
     if checkUser():
+        # must add friends to form before validating so that form.guests.choices is populated
+        friendship = Friend.query.filter(((Friend.user_id1 == session['userID']) | (Friend.user_id2 == session['userID'])) & (Friend.status == 1)).all()
+        friendsList = []
+        for i in friendship:
+            if i.user_id1 == session['userID']:
+                friendsList.append(User.query.filter_by(id=i.user_id2).first())
+            else:
+                friendsList.append(User.query.filter_by(id=i.user_id1).first())
+        # add friends to form
+        form.guests.choices = [(str(i.id), i.username) for i in friendsList]
+        print(form.guests.choices)
         if form.validate_on_submit():
-            print(form.name.data)
-            print(form.description.data)
-            print(form.location.data)
-            print(form.datetime.data)
-            print(form.guests.data)
+            print(f"NAME: {form.name.data}")
+            print(f"FRIENDS: {form.guests.data}")
+            print(f"DATE: {form.datetime.data}")
+            newEvent = Event(name=form.name.data,
+                             description=form.description.data,
+                             location=form.location.data,
+                             date=form.datetime.data,
+                             time=form.datetime.data,
+                             user_id=session['userID'])
+            db.session.add(newEvent)
+            db.session.commit()
+            print(f"newEvent.id: {newEvent.id}")
             return redirect(url_for('home'))
-        return render_template('create_event.html', form=form)
+        else:
+            print(form.errors)
+            print(form.guests.data)
+        return render_template('create_event.html', form=form, friendsList=friendsList)
     else:
         return render_template('index.html')
 
