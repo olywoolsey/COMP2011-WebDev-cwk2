@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_, case
+from sqlalchemy import or_, case, join
 from flask_restful import Resource, Api
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
@@ -41,6 +41,7 @@ class EventFriend(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     friend_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    accepted = db.Column(db.Integer) # 0 = not accepted, 1 = accepted
 
 # see if user is logged in
 def checkUser():
@@ -62,7 +63,14 @@ def home():
     if checkUser():
         username = User.query.filter_by(id=session['userID']).first().username
         picture = './static/uploads/' + username + '.jpg'
-        return render_template('home.html', profile_picture=picture)
+        events = Event.query.filter_by(user_id=session['userID']).all()
+        invitations = EventFriend.query.filter_by(friend_id=session['userID']).all()
+        eventInvitations = []
+        for i in invitations:
+            eventInvitations.append(Event.query.filter_by(id=i.event_id).first())
+        print(eventInvitations)
+        print(events)
+        return render_template('home.html', profile_picture=picture, username=username, events=events, eventInvitations=eventInvitations)
     else:
         return render_template('index.html')
 
@@ -164,9 +172,7 @@ def create_event():
         form.guests.choices = [(str(i.id), i.username) for i in friendsList]
         print(form.guests.choices)
         if form.validate_on_submit():
-            print(f"NAME: {form.name.data}")
-            print(f"FRIENDS: {form.guests.data}")
-            print(f"DATE: {form.datetime.data}")
+            guests = form.guests.data
             newEvent = Event(name=form.name.data,
                              description=form.description.data,
                              location=form.location.data,
@@ -175,11 +181,15 @@ def create_event():
                              user_id=session['userID'])
             db.session.add(newEvent)
             db.session.commit()
-            print(f"newEvent.id: {newEvent.id}")
+            eventId = newEvent.id
+            for i in guests:
+                eventFriend = EventFriend(event_id=eventId,
+                                friend_id=i, accepted=0)
+                db.session.add(eventFriend)
+            db.session.commit()
             return redirect(url_for('home'))
         else:
             print(form.errors)
-            print(form.guests.data)
         return render_template('create_event.html', form=form, friendsList=friendsList)
     else:
         return render_template('index.html')
