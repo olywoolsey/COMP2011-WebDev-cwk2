@@ -84,16 +84,23 @@ function generateCalendar(calendarData) {
     var eventName = "";
     var eventId = "";
     let cell = document.createElement("td");
+    cell.innerHTML = day;
     for (const event of calendarData) {
-      var cmp = year + "-" + (month + 1) + "-" + day
+      let fullMonth = (month + 1).toString().padStart(2, "0");
+      let fullDay = day.toString().padStart(2, "0");
+      var cmp = year + "-" + fullMonth + "-" + fullDay;
+      // let fullMonth = (month + 1).padStart(2, "0");
+      // let fullDay = day.padStart(2, "0");
+      // var cmp = year + "-" + (month + 1) + "-" + day.padStart(2, "0");
+      console.log("cmp: ", cmp)
+      console.log("date: ", event["date"])
       if (event["date"] === cmp) {
         var eventName = event["name"];
         var eventId = event["id"];
+        if (eventName != "") {
+          cell.innerHTML += "<br>" + "<a href=/event/" + eventId + ">" + eventName + "</a>";
+        }
       }
-    }
-    cell.innerHTML = day;
-    if (eventName != "") {
-      cell.innerHTML += "<br>" + "<a href=/event/" + eventId + ">" + eventName + "</a>";
     }
     row.appendChild(cell);
     // Start a new row after every 7 cells
