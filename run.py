@@ -299,6 +299,8 @@ def calendar_data():
         data = []
         for i in events:
             data.append({'name': i.name, 'date': i.date, 'id' : str(i.id)})
+        print(events)
+        print(data)
         return data
     else:
         return render_template('index.html')

@@ -86,7 +86,7 @@ function generateCalendar(calendarData) {
     let cell = document.createElement("td");
     for (const event of calendarData) {
       var cmp = year + "-" + (month + 1) + "-" + day
-      if (event["date"] == cmp) {
+      if (event["date"] === cmp) {
         var eventName = event["name"];
         var eventId = event["id"];
       }
