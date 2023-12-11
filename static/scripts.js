@@ -31,47 +31,98 @@ function changeProfilePicture() {
   input.click();
 }
 
-function generateUserList() {
-  fetch('/get_users')
+let date = new Date();
+// Get the year and month
+let year = date.getFullYear();
+let month = date.getMonth();
+
+// Get the next month
+function nextMonth() {
+  // If the current month is December, the returned value will be 0
+  if (month === 11) {
+    year++;
+    month = 0;
+  } else {
+    month++;
+  }
+  Calendar();
+}
+
+// Get the previous month
+function prevMonth() {
+  // If the current month is January, the returned value will be 11
+  if (month === 0) {
+    year--;
+    month = 11;
+  } else {
+    month--;
+  }
+  Calendar();
+}
+
+// Calendar function
+function generateCalendar(calendarData) {
+  // Get the table body element
+  const monthAndYear = document.getElementById("monthAndYear");
+  monthAndYear.innerHTML = year + "-" + (month + 1);
+  const calendarBody = document.getElementById("calendar-body");
+  // Clear the table body
+  calendarBody.innerHTML = "";
+  // Get the number of days in the current month
+  const numDays = new Date(year, month + 1, 0).getDate();
+  // Get the day of the week for the first day of the month
+  const startDay = new Date(year, month, 1).getDay();
+  // Start creating the calendar rows
+  let row = document.createElement("tr");
+  // Add empty cells for the days before the start day
+  for (let i = 0; i < startDay; i++) {
+    let cell = document.createElement("td");
+    row.appendChild(cell);
+  }
+  // Add the days of the month
+  for (let day = 1; day <= numDays; day++) {
+    var eventName = "";
+    var eventId = "";
+    let cell = document.createElement("td");
+    for (const event of calendarData) {
+      var cmp = year + "-" + (month + 1) + "-" + day
+      if (event["date"] == cmp) {
+        var eventName = event["name"];
+        var eventId = event["id"];
+      }
+    }
+    cell.innerHTML = day;
+    if (eventName != "") {
+      cell.innerHTML += "<br>" + "<a href=/event/" + eventId + ">" + eventName + "</a>";
+    }
+    row.appendChild(cell);
+    // Start a new row after every 7 cells
+    if (row.children.length === 7) {
+      calendarBody.appendChild(row);
+      row = document.createElement("tr");
+    }
+  }
+  // Add the remaining cells to the last row
+  if (row.children.length > 0) {
+    calendarBody.appendChild(row);
+  }
+}
+
+// generate calendar
+function Calendar() {
+  // function to send ajax request to server to generate calendar data
+  fetch('/calendar_data', {
+    method: 'GET'
+  })
     .then(response => response.json())
     .then(data => {
-      var users = data.users;
-      var userListElement = document.getElementById('userList');
-
-      users.forEach(function(user) {
-        var li = document.createElement('li');
-        li.textContent = user;
-        userListElement.appendChild(li);
-      });
+      // function to generate calendar
+      generateCalendar(data);
     })
     .catch(error => {
-      console.error('Error retrieving users', error);
+      // Display an error message to the user
+      console.error(error);
+      alert('An error occurred while generating the calendar.');
     });
 }
 
-function sendUserList() {
-  var userList = document.getElementById('userList').getElementsByTagName('li');
-  var selectedUsers = [];
-
-  for (var i = 0; i < userList.length; i++) {
-    selectedUsers.push(userList[i].textContent);
-  }
-
-  fetch('/users', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ users: selectedUsers })
-  })
-    .then(response => {
-      if (response.ok) {
-        console.log('Users sent successfully');
-      } else {
-        console.error('Error sending users');
-      }
-    })
-    .catch(error => {
-      console.error('Error sending users', error);
-    });
-}

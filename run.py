@@ -52,7 +52,7 @@ def checkUser():
 
 # landing page
 @app.route('/')
-def hello_world():
+def index():
     if checkUser():
         return redirect(url_for('home'))
     else:
@@ -68,8 +68,6 @@ def home():
         eventInvitations = []
         for i in invitations:
             eventInvitations.append(Event.query.filter_by(id=i.event_id).first())
-        print(eventInvitations)
-        print(events)
         return render_template('home.html', profile_picture=picture, username=username, events=events, eventInvitations=eventInvitations)
     else:
         return render_template('index.html')
@@ -170,7 +168,6 @@ def create_event():
                 friendsList.append(User.query.filter_by(id=i.user_id1).first())
         # add friends to form
         form.guests.choices = [(str(i.id), i.username) for i in friendsList]
-        print(form.guests.choices)
         if form.validate_on_submit():
             guests = form.guests.data
             newEvent = Event(name=form.name.data,
@@ -191,6 +188,19 @@ def create_event():
         else:
             print(form.errors)
         return render_template('create_event.html', form=form, friendsList=friendsList)
+    else:
+        return render_template('index.html')
+
+@app.route('/event/<eventId>', methods=('GET', 'POST'))
+def event(eventId):
+    if checkUser():
+        event = Event.query.filter_by(id=eventId).first()
+        eventFriends = EventFriend.query.filter_by(event_id=eventId).all()
+        guests = []
+        for i in eventFriends:
+            guests.append(User.query.filter_by(id=i.friend_id).first())
+        print(guests)
+        return render_template('event.html', event=event, guests=guests)
     else:
         return render_template('index.html')
 
@@ -282,6 +292,16 @@ def settings():
     else:
         return render_template('index.html')
 
+@app.route('/calendar_data', methods=('GET', 'POST'))
+def calendar_data():
+    if checkUser():
+        events = Event.query.filter_by(user_id=session['userID']).all()
+        data = []
+        for i in events:
+            data.append({'name': i.name, 'date': i.date, 'id' : str(i.id)})
+        return data
+    else:
+        return render_template('index.html')
 
 # run app on local device for testing
 if __name__=="__main__":
