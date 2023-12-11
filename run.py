@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_, case
+from sqlalchemy import or_, case, join
 from flask_restful import Resource, Api
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
@@ -41,6 +41,7 @@ class EventFriend(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     friend_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    accepted = db.Column(db.Integer) # 0 = not accepted, 1 = accepted
 
 # see if user is logged in
 def checkUser():
@@ -51,7 +52,7 @@ def checkUser():
 
 # landing page
 @app.route('/')
-def hello_world():
+def index():
     if checkUser():
         return redirect(url_for('home'))
     else:
@@ -62,7 +63,12 @@ def home():
     if checkUser():
         username = User.query.filter_by(id=session['userID']).first().username
         picture = './static/uploads/' + username + '.jpg'
-        return render_template('home.html', profile_picture=picture)
+        events = Event.query.filter_by(user_id=session['userID']).all()
+        invitations = EventFriend.query.filter_by(friend_id=session['userID']).all()
+        eventInvitations = []
+        for i in invitations:
+            eventInvitations.append(Event.query.filter_by(id=i.event_id).first())
+        return render_template('home.html', profile_picture=picture, username=username, events=events, eventInvitations=eventInvitations)
     else:
         return render_template('index.html')
 
@@ -152,14 +158,49 @@ def change_profile_picture():
 def create_event(): 
     form = NewEventForm()
     if checkUser():
+        # must add friends to form before validating so that form.guests.choices is populated
+        friendship = Friend.query.filter(((Friend.user_id1 == session['userID']) | (Friend.user_id2 == session['userID'])) & (Friend.status == 1)).all()
+        friendsList = []
+        for i in friendship:
+            if i.user_id1 == session['userID']:
+                friendsList.append(User.query.filter_by(id=i.user_id2).first())
+            else:
+                friendsList.append(User.query.filter_by(id=i.user_id1).first())
+        # add friends to form
+        form.guests.choices = [(str(i.id), i.username) for i in friendsList]
         if form.validate_on_submit():
-            print(form.name.data)
-            print(form.description.data)
-            print(form.location.data)
-            print(form.datetime.data)
-            print(form.guests.data)
+            guests = form.guests.data
+            newEvent = Event(name=form.name.data,
+                             description=form.description.data,
+                             location=form.location.data,
+                             date=form.datetime.data,
+                             time=form.datetime.data,
+                             user_id=session['userID'])
+            db.session.add(newEvent)
+            db.session.commit()
+            eventId = newEvent.id
+            for i in guests:
+                eventFriend = EventFriend(event_id=eventId,
+                                friend_id=i, accepted=0)
+                db.session.add(eventFriend)
+            db.session.commit()
             return redirect(url_for('home'))
-        return render_template('create_event.html', form=form)
+        else:
+            print(form.errors)
+        return render_template('create_event.html', form=form, friendsList=friendsList)
+    else:
+        return render_template('index.html')
+
+@app.route('/event/<eventId>', methods=('GET', 'POST'))
+def event(eventId):
+    if checkUser():
+        event = Event.query.filter_by(id=eventId).first()
+        eventFriends = EventFriend.query.filter_by(event_id=eventId).all()
+        guests = []
+        for i in eventFriends:
+            guests.append(User.query.filter_by(id=i.friend_id).first())
+        print(guests)
+        return render_template('event.html', event=event, guests=guests)
     else:
         return render_template('index.html')
 
@@ -251,6 +292,16 @@ def settings():
     else:
         return render_template('index.html')
 
+@app.route('/calendar_data', methods=('GET', 'POST'))
+def calendar_data():
+    if checkUser():
+        events = Event.query.filter_by(user_id=session['userID']).all()
+        data = []
+        for i in events:
+            data.append({'name': i.name, 'date': i.date, 'id' : str(i.id)})
+        return data
+    else:
+        return render_template('index.html')
 
 # run app on local device for testing
 if __name__=="__main__":

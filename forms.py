@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import (StringField, TextAreaField, IntegerField, BooleanField, FloatField, RadioField, SubmitField, DateField, SelectField, SelectMultipleField)
+from wtforms import (StringField, TextAreaField, IntegerField, BooleanField, FloatField, RadioField, SubmitField, DateField, SelectField, SelectMultipleField, widgets)
 from wtforms.validators import DataRequired, InputRequired, Length
 
 class LoginForm(FlaskForm):
@@ -21,8 +21,7 @@ class NewEventForm(FlaskForm):
     description = TextAreaField('Description')
     location = StringField('Location')
     datetime = DateField('Date', validators=[DataRequired()])
-    # people has to be a drop down list of people
-    guests = SelectMultipleField('Guests')
+    guests = SelectMultipleField('Guests', choices=[], widget=widgets.ListWidget(prefix_label=False), option_widget=widgets.CheckboxInput())
 
 class NewFriendForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

@@ -1,14 +1,54 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
 {% block content %}
+<body onload="Calendar()">
   <nav>
     <a href="/home">Home</a>
     <a href="/create_event">New Event</a>
     <a href="/friends">Friends</a>
     <a href="/settings">Settings</a>
+    <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
   </nav>
-  <h2>Calendar</h2>
+  <h1>Calendar</h1>
+  <p id="monthAndYear"></p>
+  <button onclick="prevMonth()">Previous Month</button>
+  <button onclick="nextMonth()">Next Month</button>
+  <table id="calendar">
+    <thead>
+      <tr>
+        <th>Sun</th>
+        <th>Mon</th>
+        <th>Tue</th>
+        <th>Wed</th>
+        <th>Thu</th>
+        <th>Fri</th>
+        <th>Sat</th>
+      </tr>
+    </thead>
+    <tbody id="calendar-body">
+    </tbody>
+  </table>
+  <script src="static/scripts.js"></script>
   <h2>Upcoming Events</h2>
+  {% for event in events %}
+    <div class="event">
+      <h3>{{ event.name }}</h3>
+      <p>{{ event.date }}</p>
+      <p>{{ event.location }}</p>
+      <p>{{ event.description }}</p>
+    </div>
+  {% endfor %}
 
-  <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
+  {% if eventInvitations|length > 0 %}
+    <h2>Event Invites</h2>
+    {% for event in eventInvitations %}
+      <div class="event">
+        <h3>{{ event.name }}</h3>
+        <p>{{ event.date }}</p>
+        <p>{{ event.location }}</p>
+        <p>{{ event.description }}</p>
+      </div>
+    {% endfor %}
+  {% endif %}
+
 {% endblock %}
