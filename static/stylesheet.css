@@ -151,3 +151,40 @@ nav img {
 .invited:hover {
   background: linear-gradient(to right, #0749B4, #e5a027);
 }
+
+/* CSS for mobile devices */
+@media (max-width: 767px) {
+  h1 {
+    font-size: 30px;
+    padding: 10px;
+  }
+  h2 {
+    font-size: 24px;
+    padding: 10px;
+  }
+  p {
+    padding-left: 10px;
+  }
+  nav {
+    padding: 5px;
+  }
+  nav a, nav button {
+    padding: 5px;
+  }
+  .nav-links a {
+    margin-right: 10px;
+  }
+  .month-nav a {
+    width: 100px;
+  }
+  #calendar th, #calendar td {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .made, .accepted, .invited {
+    width: 90%;
+    padding: 3px;
+    margin: 3px;
+  }
+}
+
