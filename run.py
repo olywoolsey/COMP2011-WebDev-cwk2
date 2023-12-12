@@ -294,10 +294,22 @@ def settings():
 @app.route('/calendar_data', methods=('GET', 'POST'))
 def calendar_data():
     if checkUser():
-        events = Event.query.filter_by(user_id=session['userID']).all()
+        eventsAccepted = EventFriend.query.filter_by(friend_id=session['userID'], accepted=1).all()
+        eventInvites = EventFriend.query.filter_by(friend_id=session['userID'], accepted=0).all()
+        eventsMadeData = Event.query.filter_by(user_id=session['userID']).all()
+        eventsAcceptedData = []
+        eventInvitesData = []
+        for i in eventsAccepted:
+            eventAcceptedData.append(Event.query.filter_by(id=i.event_id).first())
+        for i in eventInvites:
+            eventInvitesData.append(Event.query.filter_by(id=i.event_id).first())
         data = []
-        for i in events:
-            data.append({'name': i.name, 'date': i.date, 'id' : str(i.id)})
+        for i in eventsMadeData:
+            data.append({'name': i.name, 'date': i.date, 'id' : str(i.id), 'status' : "made"})
+        for i in eventsAcceptedData:
+            data.append({'name': i.name, 'date': i.date, 'id' : str(i.id), 'status' : "accepted"})
+        for i in eventInvitesData:
+            data.append({'name': i.name, 'date': i.date, 'id' : str(i.id), 'status' : "invited"})
         return data
     else:
         return render_template('index.html')

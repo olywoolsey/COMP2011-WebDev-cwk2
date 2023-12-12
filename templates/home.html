@@ -3,16 +3,19 @@
 {% block content %}
 <body onload="Calendar()">
   <nav>
-    <a href="/home">Home</a>
-    <a href="/create_event">New Event</a>
-    <a href="/friends">Friends</a>
-    <a href="/settings">Settings</a>
+    <div class="nav-links">
+      <a href="/home">Home</a>
+      <a href="/create_event">New Event</a>
+      <a href="/friends">Friends</a>
+      <a href="/settings">Settings</a>
+    </div>
+    <div class="month-nav">
+      <button onclick="prevMonth()"><b> < </b></button>
+      <a id="monthAndYear"></a>
+      <button onclick="nextMonth()"><b> > </b></button>
+    </div>
     <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
   </nav>
-  <h1>Calendar</h1>
-  <p id="monthAndYear"></p>
-  <button onclick="prevMonth()">Previous Month</button>
-  <button onclick="nextMonth()">Next Month</button>
   <table id="calendar">
     <thead>
       <tr>
@@ -38,7 +41,6 @@
       <p>{{ event.description }}</p>
     </div>
   {% endfor %}
-
   {% if eventInvitations|length > 0 %}
     <h2>Event Invites</h2>
     {% for event in eventInvitations %}

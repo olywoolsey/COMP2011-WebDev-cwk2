@@ -60,11 +60,40 @@ function prevMonth() {
   Calendar();
 }
 
+function getMonth(month) {
+  switch (month) {
+    case 0:
+      return "January";
+    case 1:
+      return "Febuary";
+    case 2:
+      return "March";
+    case 3:
+      return "April";
+    case 4:
+      return "May";
+    case 5:
+      return "June";
+    case 6:
+      return "July";
+    case 7:
+      return "August";
+    case 8:
+      return "September";
+    case 9:
+      return "October";
+    case 10:
+      return "November";
+    case 11:
+      return "December";
+  }
+}
+
 // Calendar function
 function generateCalendar(calendarData) {
   // Get the table body element
   const monthAndYear = document.getElementById("monthAndYear");
-  monthAndYear.innerHTML = year + "-" + (month + 1);
+  monthAndYear.innerHTML = getMonth(month) + " " + year;
   const calendarBody = document.getElementById("calendar-body");
   // Clear the table body
   calendarBody.innerHTML = "";
@@ -84,7 +113,7 @@ function generateCalendar(calendarData) {
     var eventName = "";
     var eventId = "";
     let cell = document.createElement("td");
-    cell.innerHTML = day;
+    cell.innerHTML = "<b>" + day + "</b>";
     for (const event of calendarData) {
       let fullMonth = (month + 1).toString().padStart(2, "0");
       let fullDay = day.toString().padStart(2, "0");
@@ -98,7 +127,15 @@ function generateCalendar(calendarData) {
         var eventName = event["name"];
         var eventId = event["id"];
         if (eventName != "") {
-          cell.innerHTML += "<br>" + "<a href=/event/" + eventId + ">" + eventName + "</a>";
+          if (event.status === "made") {
+            cell.innerHTML += "<br>" + "<a href=/event/" + eventId + "><div class=\"made\">" + eventName + "</div></a>";
+          }
+          if (event.status === "accepted") {
+            cell.innerHTML += "<br>" + "<a href=/event/" + eventId + "><div class=\"accepted\">" + eventName + "</div></a>";
+          }
+          if (event.status === "invited") {
+            cell.innerHTML += "<br>" + "<a href=/event/" + eventId + "><div class=\"invited\">" + eventName + "</div></a>";
+          }
         }
       }
     }
