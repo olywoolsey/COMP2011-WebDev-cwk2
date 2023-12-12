@@ -2,6 +2,15 @@
 {% block title %}Delete Account{% endblock %}
 {% block content %}
 <body>
+  <nav>
+    <div class="nav-links">
+      <a href="/home">Home</a>
+      <a href="/create_event">New Event</a>
+      <a href="/friends">Friends</a>
+      <a href="/settings">Settings</a>
+    </div>
+    <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
+  </nav>
   <h1>Delete Account</h1>
   <form method='post' name="DeleteAccountForm">
     {{ form.hidden_tag() }}

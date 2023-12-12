@@ -2,6 +2,15 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 <body>
+  <nav>
+    <div class="nav-links">
+      <a href="/home">Home</a>
+      <a href="/create_event">New Event</a>
+      <a href="/friends">Friends</a>
+      <a href="/settings">Settings</a>
+    </div>
+    <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
+  </nav>
 <h1>{{ event.name }}</h1>
 <p>Date: {{ event.date }}</p>
 <p>{{ event.description }}</p>

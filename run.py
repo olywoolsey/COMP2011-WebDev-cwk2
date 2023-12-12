@@ -7,11 +7,13 @@ from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 import os
 from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm
+import shutil
 # from forms import *
 
 app = Flask(__name__)
 app.config.from_object('config')
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['STATIC_FOLDER'] = 'static'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 api = Api(app)
@@ -112,6 +114,13 @@ def register():
             user = User(username=form.username.data,
                         email=form.email.data,
                         password=form.password2.data)
+            username = user.username
+            filename = secure_filename(username + '.jpg')
+            # copy Default.jpg to username.jpg
+            original_file_path = os.path.join(app.root_path, app.config['STATIC_FOLDER'], 'Default.jpg')
+            new_file_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)
+            shutil.copy(original_file_path, new_file_path)
+
             db.session.add(user)
             db.session.commit()
             session['logged_in'] = True
@@ -158,6 +167,8 @@ def change_profile_picture():
 def create_event(): 
     form = NewEventForm()
     if checkUser():
+        username = User.query.filter_by(id=session['userID']).first().username
+        picture = './static/uploads/' + username + '.jpg'
         # must add friends to form before validating so that form.guests.choices is populated
         friendship = Friend.query.filter(((Friend.user_id1 == session['userID']) | (Friend.user_id2 == session['userID'])) & (Friend.status == 1)).all()
         friendsList = []
@@ -187,19 +198,21 @@ def create_event():
             return redirect(url_for('home'))
         else:
             print(form.errors)
-        return render_template('create_event.html', form=form, friendsList=friendsList)
+        return render_template('create_event.html', form=form, profile_picture=picture, friendsList=friendsList)
     else:
         return render_template('index.html')
 
 @app.route('/event/<eventId>', methods=('GET', 'POST'))
 def event(eventId):
     if checkUser():
+        username = User.query.filter_by(id=session['userID']).first().username
+        picture = './static/uploads/' + username + '.jpg'
         event = Event.query.filter_by(id=eventId).first()
         eventFriends = EventFriend.query.filter_by(event_id=eventId).all()
         guests = []
         for i in eventFriends:
             guests.append(User.query.filter_by(id=i.friend_id).first())
-        return render_template('event.html', event=event, guests=guests)
+        return render_template('event.html', event=event, profile_picture=picture, guests=guests)
     else:
         return render_template('index.html')
 
@@ -211,6 +224,8 @@ def friends():
     formReject = RejectFriendForm()
     formCancel = CancelFriendForm()
     if checkUser():
+        username = User.query.filter_by(id=session['userID']).first().username
+        picture = './static/uploads/' + username + '.jpg'
         if formNew.validate_on_submit():
             if User.query.filter_by(username=formNew.username.data).first() is None:
                 flash('User does not exist')
@@ -273,6 +288,7 @@ def friends():
                     friendsRequestRecieved.append(User.query.filter_by(id=i.user_id1).first())
         return render_template('friends.html',
                                username=User.query.filter_by(id=session['userID']).first().username,
+                               profile_picture=picture,
                                formNew=formNew,
                                formRemove=formRemove,
                                formAccept=formAccept,
@@ -287,7 +303,9 @@ def friends():
 @app.route('/settings', methods=('GET', 'POST'))
 def settings():
     if checkUser():
-        return render_template('settings.html')
+        username = User.query.filter_by(id=session['userID']).first().username
+        picture = './static/uploads/' + username + '.jpg'
+        return render_template('settings.html', profile_picture=picture)
     else:
         return render_template('index.html')
 
