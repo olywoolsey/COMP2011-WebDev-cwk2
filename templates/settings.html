@@ -12,7 +12,14 @@
     <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
   </nav>
 <h1>Settings</h1>
-  <a href="/change_username">Change Username</a>
-  <a href="/delete_account">Delete Account</a>
-  <a href="/logout">Logout</a>
+  <div class="displayContent">
+    <div>
+      <img id="profile-picture-big" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
+      <h3>{{ username }}</h3>
+    </div>
+  </div>
+  <div class="item-list">
+    <a href="/delete_account">Delete Account</a>
+    <a href="/logout">Logout</a>
+  </div>
 {% endblock %}

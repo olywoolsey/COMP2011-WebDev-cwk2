@@ -305,7 +305,7 @@ def settings():
     if checkUser():
         username = User.query.filter_by(id=session['userID']).first().username
         picture = './static/uploads/' + username + '.jpg'
-        return render_template('settings.html', profile_picture=picture)
+        return render_template('settings.html', profile_picture=picture, username=username)
     else:
         return render_template('index.html')
 

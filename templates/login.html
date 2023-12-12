@@ -3,20 +3,24 @@
 {% block content %}
 <body>
   <h1>Login</h1>
-  <form method='post' name="Login">
-    {{ form.hidden_tag() }}
-    <div>
-      <label for="identifier">Username or Email:</label>
-      {{ form.identifier }}
-    </div>
-    <div>
-      <label for="password">Password:</label>
-      {{ form.password }}
-    </div>
-    {{ get_flashed_messages()[0] }}
-    <div>
-      <input type="submit" id="submit" name="submit" value="Submit">
-    </div>
-  </form>
-  <a href="{{ url_for('register') }}">Register</a>
+  <div class="enterDetails">
+    <form method='post' name="Login">
+      {{ form.hidden_tag() }}
+      <div>
+        <label for="identifier">Username or Email:</label>
+        <br>
+        {{ form.identifier }}
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <br>
+        {{ form.password }}
+      </div>
+      {{ get_flashed_messages()[0] }}
+      <div>
+        <input type="submit" id="submit" name="submit" value="Submit">
+      </div>
+    </form>
+    <p>Don't have an account? <a class="otherAction" href="{{ url_for('register') }}">Register Here</a></p>
+  </div>
 {% endblock %}

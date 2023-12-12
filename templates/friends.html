@@ -12,17 +12,19 @@
     <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
   </nav>
   <h1>Friends</h1>
+  <div class="enterDetails">
     <form method='post' name="NewFriend">
-    {{ formNew.hidden_tag() }}
-    <div>
-      <label for="username">Enter Username</label>
-      {{ formNew.username }}
-    </div>
-    {{ get_flashed_messages()[0] }}
-    <div>
-      <input type="submit" id="submit" name="submit" value="Submit">
-    </div>
-  </form>
+      {{ formNew.hidden_tag() }}
+      <div>
+        <label for="username">Find Friend: Enter username</label>
+        {{ formNew.username }}
+      </div>
+      {{ get_flashed_messages()[0] }}
+      <div>
+        <input type="submit" id="submit" name="submit" value="Submit">
+      </div>
+    </form>
+  </div>
 
   <h2>Friends List</h2>
   {% if friendsList|length == 0 %}
@@ -30,7 +32,7 @@
   {% else %}
     {% for friend in friendsList %}
       <div>
-        <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="Profile Picture" onclick="changeProfilePicture()
+        <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="Profile Picture" onclick="changeProfilePicture()"
         <h2>{{ friend.username }}</h2>
         <form method='post' name="RemoveFriend">
           {{ formRemove.hidden_tag() }}
@@ -66,18 +68,20 @@
     {% endfor %}
   {% endif %}
 
-  <h2>Sent Friend Requests</h2>
-  {% for friend in friendsRequestSent %}
-    <div>
-      <p>{{ friend.username }}</p>
-      <form method='post' name="CancelFriend">
-        {{ formCancel.hidden_tag() }}
-        <input type="hidden" name="cancel_friend_id" value="{{ friend.id }}">
-        <div>
-          <input type="submit" id="submit" name="submit" value="Remove">
-        </div>
-      </form>
-    </div>
-  {% endfor %}
+  {% if friendsRequestSent|length > 0 %}
+    <h2>Sent Friend Requests</h2>
+    {% for friend in friendsRequestSent %}
+      <div>
+        <p>{{ friend.username }}</p>
+        <form method='post' name="CancelFriend">
+          {{ formCancel.hidden_tag() }}
+          <input type="hidden" name="cancel_friend_id" value="{{ friend.id }}">
+          <div>
+            <input type="submit" id="submit" name="submit" value="Remove">
+          </div>
+        </form>
+      </div>
+    {% endfor %}
+  {% endif %}
 
 {% endblock %}

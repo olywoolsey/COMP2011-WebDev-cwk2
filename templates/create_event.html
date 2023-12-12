@@ -12,6 +12,7 @@
     <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
   </nav>
 <h1>New Event</h1>
+<div class="enterDetails">
   <form method='post' name="Login">
     {{ form.hidden_tag() }}
     <div>
@@ -38,4 +39,5 @@
       <input type="submit" id="submit" name="submit" value="Submit">
     </div>
   </form>
+</div>
 {% endblock %}

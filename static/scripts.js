@@ -121,8 +121,6 @@ function generateCalendar(calendarData) {
       // let fullMonth = (month + 1).padStart(2, "0");
       // let fullDay = day.padStart(2, "0");
       // var cmp = year + "-" + (month + 1) + "-" + day.padStart(2, "0");
-      console.log("cmp: ", cmp)
-      console.log("date: ", event["date"])
       if (event["date"] === cmp) {
         var eventName = event["name"];
         var eventId = event["id"];
