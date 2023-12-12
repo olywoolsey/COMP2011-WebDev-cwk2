@@ -1,2 +1,2 @@
-export FLASK_APP=flask_app.py
+export FLASK_APP=run.py
 export FLASK_DEBUG=1

@@ -11,7 +11,11 @@
     </div>
     <img id="profile-picture" src="{{ profile_picture }}" alt="Profile Picture" onclick="changeProfilePicture()">
   </nav>
-<h1>{{ event.name }}</h1>
-<p>Date: {{ event.date }}</p>
-<p>{{ event.description }}</p>
+  <h1>Event</h1>
+  <div class="printDetails">
+      <h2>{{ event.name }}</h2><br>
+      <h3>Date: {{ event.date }}</h3><br>
+      <h3>Location: {{ event.location }}</h3><br>
+      <h3>{{ event.description }}</h3><br>
+  </div>
 {% endblock %}

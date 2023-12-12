@@ -114,6 +114,7 @@ function generateCalendar(calendarData) {
     var eventId = "";
     let cell = document.createElement("td");
     cell.innerHTML = "<b>" + day + "</b>";
+    let rows = 3;
     for (const event of calendarData) {
       let fullMonth = (month + 1).toString().padStart(2, "0");
       let fullDay = day.toString().padStart(2, "0");
@@ -134,7 +135,11 @@ function generateCalendar(calendarData) {
           if (event.status === "invited") {
             cell.innerHTML += "<br>" + "<a href=/event/" + eventId + "><div class=\"invited\">" + eventName + "</div></a>";
           }
+          rows -= 1;
         }
+      }
+      for (let i = 0; i < rows; i++) {
+        cell.innerHTML += "<br>";
       }
     }
     row.appendChild(cell);

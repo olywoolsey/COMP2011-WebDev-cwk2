@@ -17,21 +17,25 @@
     {{ form.hidden_tag() }}
     <div>
       <label for="name">Event Name</label>
+      <br>
       {{ form.name }}
     </div>
     <div>
       <label for="description">Event Description</label>
+      <br>
       {{ form.description }}
     </div>
     <div>
       <label for="location">Event Location</label>
+      <br>
       {{ form.location }}
     </div>
     <div>
       <label for="datetime">Event Date and time</label>
+      <br>
       {{ form.datetime }}
     </div>
-    <div>
+    <div class="lists">
       <label for="guests">Event Guests</label>
       {{ form.guests }}
     </div>
