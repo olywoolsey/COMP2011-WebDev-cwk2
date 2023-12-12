@@ -138,9 +138,9 @@ function generateCalendar(calendarData) {
           rows -= 1;
         }
       }
-      for (let i = 0; i < rows; i++) {
-        cell.innerHTML += "<br>";
-      }
+    }
+    for (let i = 0; i < rows; i++) {
+      cell.innerHTML += "<br>";
     }
     row.appendChild(cell);
     // Start a new row after every 7 cells
