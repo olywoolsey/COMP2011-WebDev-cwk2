@@ -345,3 +345,18 @@ nav img {
   background-repeat: no-repeat;
   background-size: cover;
 }
+
+.button {
+  padding: 10px;
+  border: none;
+  border-radius: 30px;
+  background-color: #231312;
+  color: #fff;
+  text-decoration: none;
+  min-width: 300px;
+  text-align: center;
+}
+.button:hover {
+  background-color: #588d4b;
+  color: #fff;
+}

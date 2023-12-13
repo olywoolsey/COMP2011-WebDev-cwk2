@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from flask_bcrypt import Bcrypt
 import os
-from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm
+from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm, AcceptEventForm
 import shutil
 # from forms import *
 
@@ -212,6 +212,7 @@ def create_event():
 
 @app.route('/event/<eventId>', methods=('GET', 'POST'))
 def event(eventId):
+    form = AcceptEventForm()
     if checkUser():
         username = User.query.filter_by(id=session['userID']).first().username
         picture = './static/uploads/' + username + '.jpg'
@@ -220,7 +221,11 @@ def event(eventId):
         guests = []
         for i in eventFriends:
             guests.append(User.query.filter_by(id=i.friend_id).first())
-        return render_template('event.html', event=event, profile_picture=picture, guests=guests)
+        if form.validate_on_submit():
+            eventFriend = EventFriend.query.filter_by(event_id=eventId, friend_id=session['userID']).first()
+            eventFriend.accepted = 1
+            db.session.commit()
+        return render_template('event.html', form=form, event=event, profile_picture=picture, guests=guests)
     else:
         return redirect(url_for('home'))
 
@@ -326,7 +331,7 @@ def calendar_data():
         eventsAcceptedData = []
         eventInvitesData = []
         for i in eventsAccepted:
-            eventAcceptedData.append(Event.query.filter_by(id=i.event_id).first())
+            eventsAcceptedData.append(Event.query.filter_by(id=i.event_id).first())
         for i in eventInvites:
             eventInvitesData.append(Event.query.filter_by(id=i.event_id).first())
         data = []

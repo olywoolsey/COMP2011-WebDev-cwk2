@@ -13,13 +13,25 @@
   </nav>
   <h1>Event</h1>
   <div class="printDetails">
-      <h2>{{ event.name }}</h2><br>
-      <h3>Date: </h3><p>{{ event.date }}</p><br>
-      {% if event.location %}
-        <h3>Location: </h3><p>{{ event.location }}</h3><br>
-      {% endif %}
-      {% if event.description %}
-        <h3>Description: </h3><p>{{ event.description }}</h3><br>
-      {% endif %}
+    <h2>{{ event.name }}</h2><br>
+    <h3>Date: </h3><p>{{ event.date }}</p><br>
+    {% if event.location %}
+      <h3>Location: </h3><p>{{ event.location }}</h3><br>
+    {% endif %}
+    {% if event.description %}
+      <h3>Description: </h3><p>{{ event.description }}</h3><br>
+    {% endif %}
+    <h3>Guests: </h3>
+    {% for guest in guests %}
+      <p>- {{ guest.username }}</p><br>
+    {% endfor %}
+    
+    <form method="post" name="acceptEvent">
+      {{ form.hidden_tag() }}
+      <input type="hidden" name="accept_event_id" value="{{ event.id }}">
+      <div>
+        <input class="button" type="submit" id="submit" name="submit" value="Going">
+      </div>
+    </form>
   </div>
 {% endblock %}
