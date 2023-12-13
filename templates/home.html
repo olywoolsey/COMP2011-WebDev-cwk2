@@ -32,18 +32,13 @@
     </tbody>
   </table>
   <script src="static/scripts.js"></script>
+  <div>
+    <br>
+  </div>
+  <div class="printDetails">
   <h2>Upcoming Events</h2>
-  {% for event in events %}
-    <div class="event">
-      <h3>{{ event.name }}</h3>
-      <p>{{ event.date }}</p>
-      <p>{{ event.location }}</p>
-      <p>{{ event.description }}</p>
-    </div>
-  {% endfor %}
-  {% if eventInvitations|length > 0 %}
-    <h2>Event Invites</h2>
-    {% for event in eventInvitations %}
+    {% for event in events %}
+      <hr>
       <div class="event">
         <h3>{{ event.name }}</h3>
         <p>{{ event.date }}</p>
@@ -51,6 +46,18 @@
         <p>{{ event.description }}</p>
       </div>
     {% endfor %}
+  </div>
+  {% if eventInvitations|length > 0 %}
+    <div class="printDetails">
+      <h2>Event Invites</h2>
+      {% for event in eventInvitations %}
+        <div class="event">
+          <h3>{{ event.name }}</h3>
+          <p>{{ event.date }}</p>
+          <p>{{ event.location }}</p>
+          <p>{{ event.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
   {% endif %}
-
 {% endblock %}

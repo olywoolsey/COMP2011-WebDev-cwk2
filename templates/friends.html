@@ -21,74 +21,80 @@
       </div>
       {{ get_flashed_messages()[0] }}
       <div>
-        <input type="submit" id="submit" name="submit" value="Submit">
+        <input type="submit" id="submit" name="submit" value="Search">
       </div>
     </form>
   </div>
 
-  <h2>Friends List:</h2>
-  {% if friendsList|length == 0 %}
-    <p>No friends yet</p>
-  {% else %}
-  <div class="item-list-container">
-    {% for friend in friendsList %}
-      <div class="item-list">
-        <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="{{ friend.username }}'s Profile Picture">
-        <h2>{{ friend.username }}</h2>
-        <form method='post' name="RemoveFriend">
-          {{ formRemove.hidden_tag() }}
-          <input type="hidden" name="remove_friend_id" value="{{ friend.id }}">
-          <div>
-            <input type="submit" id="submit" name="submit" value="Remove">
+  <div class="greyBox">
+    <h2>Friends List:</h2>
+    {% if friendsList|length == 0 %}
+      <p>No friends yet</p>
+    {% else %}
+      <div class="item-list-container">
+        {% for friend in friendsList %}
+          <div class="item-list">
+            <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="{{ friend.username }}'s Profile Picture">
+            <h3>{{ friend.username }}</h3>
+            <form method='post' name="RemoveFriend">
+              {{ formRemove.hidden_tag() }}
+              <input type="hidden" name="remove_friend_id" value="{{ friend.id }}">
+              <div>
+                <input type="submit" id="submit" name="save" value="Remove">
+              </div>
+            </form>
           </div>
-        </form>
+        {% endfor %}
       </div>
-    {% endfor %}
+    {% endif %}
   </div>
-  {% endif %}
 
   {% if friendsRequestRecieved|length > 0 %}
-    <h2>Accept Friend Requests:</h2>
-    <div class="item-list-container">
-      {% for friend in friendsRequestRecieved %}
-        <div class="item-list">
-          <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="{{ friend.username }}'s Profile Picture">
-          <h2>{{ friend.username }}</h2>
-          <form method='post' name="AcceptFriend">
-            {{ formAccept.hidden_tag() }}
-            <input type="hidden" name="accept_friend_id" value="{{ friend.id }}">
-            <div>
-              <input type="submit" id="submit" name="submit" value="Accept">
-            </div>
-          </form>
-          <form method='post' name="DeclineFriend">
-            {{ formReject.hidden_tag() }}
-            <input type="hidden" name="reject_friend_id" value="{{ friend.id }}">
-            <div>
-              <input type="submit" id="submit" name="submit" value="Decline">
-            </div>
-          </form>
-        </div>
-      {% endfor %}
+    <div class="greyBox">
+      <h2>Accept Friend Requests:</h2>
+      <div class="item-list-container">
+        {% for friend in friendsRequestRecieved %}
+          <div class="item-list">
+            <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="{{ friend.username }}'s Profile Picture">
+            <h3>{{ friend.username }}</h3>
+            <form method='post' name="AcceptFriend">
+              {{ formAccept.hidden_tag() }}
+              <input type="hidden" name="accept_friend_id" value="{{ friend.id }}">
+              <div>
+                <input type="submit" id="submit" name="submit" value="Accept">
+              </div>
+            </form>
+            <form method='post' name="DeclineFriend">
+              {{ formReject.hidden_tag() }}
+              <input type="hidden" name="reject_friend_id" value="{{ friend.id }}">
+              <div>
+                <input type="submit" id="submit" name="submit" value="Decline">
+              </div>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   {% endif %}
 
   {% if friendsRequestSent|length > 0 %}
-    <h2>Sent Friend Requests:</h2>
-    <div class="item-list-container">
-      {% for friend in friendsRequestSent %}
-        <div class="item-list">
-          <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="{{ friend.username }}'s Profile Picture">
-          <h2>{{ friend.username }}</h2>
-          <form method='post' name="CancelFriend">
-            {{ formCancel.hidden_tag() }}
-            <input type="hidden" name="cancel_friend_id" value="{{ friend.id }}">
-            <div>
-              <input type="submit" id="submit" name="submit" value="Remove">
-            </div>
-          </form>
-        </div>
-      {% endfor %}
+    <div class="greyBox">
+      <h3>Sent Friend Requests:</h3>
+      <div class="item-list-container">
+        {% for friend in friendsRequestSent %}
+          <div class="item-list">
+            <img id="profile-picture" src="./static/uploads/{{ friend.username }}.jpg" alt="{{ friend.username }}'s Profile Picture">
+            <h3>{{ friend.username }}</h3>
+            <form method='post' name="CancelFriend">
+              {{ formCancel.hidden_tag() }}
+              <input type="hidden" name="cancel_friend_id" value="{{ friend.id }}">
+              <div>
+                <input type="submit" id="submit" name="submit" value="Remove">
+              </div>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   {% endif %}
 

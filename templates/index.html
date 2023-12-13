@@ -1,8 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Index{% endblock %}
 {% block content %}
-<body>
-    <h1>index</h1>
-    <a href="{{ url_for('login') }}">Login</a>
-    <a href="{{ url_for('register') }}">Register</a>
+<body style="background-image: url('static/background.jpeg');
+                          background-repeat: no-repeat;
+                          background-size: cover;
+                          background-position: center;
+                          ">
+    <nav>
+      <h1>Calendar</h1>
+      <div class="nav-links">
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      </div>
+    </nav>
 {% endblock %}

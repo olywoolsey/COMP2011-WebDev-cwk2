@@ -5,6 +5,7 @@ from sqlalchemy import or_, case, join
 from flask_restful import Resource, Api
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
+from flask_bcrypt import Bcrypt
 import os
 from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm
 import shutil
@@ -16,6 +17,7 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['STATIC_FOLDER'] = 'static'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+bcrypt = Bcrypt(app)
 api = Api(app)
 
 class User(db.Model):
@@ -23,6 +25,11 @@ class User(db.Model):
     username = db.Column(db.String(32), index=True, unique=True)
     password = db.Column(db.String(32))
     email = db.Column(db.String(120), index=True, unique=True)
+    def set_password(self, password):
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -85,15 +92,15 @@ def login():
         if user is None:
             flash('Invalid username or email')
             return redirect(url_for('login'))
-        if user.password != form.password.data:
+        if user.check_password(form.password.data):
+            flash('Logged in successfully')
+            # Add the user to the session to keep them logged in
+            session['logged_in'] = True
+            session['userID'] = user.id
+            session.permanent = True
+            return redirect(url_for('home'))
+        else:
             flash('Invalid password')
-            return redirect(url_for('login'))
-        flash('Logged in successfully')
-        # Add the user to the session to keep them logged in
-        session['logged_in'] = True
-        session['userID'] = user.id
-        session.permanent = True
-        return redirect(url_for('home'))
     return render_template('login.html', form=form)
 
 # register page
@@ -112,8 +119,9 @@ def register():
             return redirect(url_for('register'))
         else:
             user = User(username=form.username.data,
-                        email=form.email.data,
-                        password=form.password2.data)
+                        email=form.email.data)
+            # hash password
+            user.set_password(form.password1.data)
             username = user.username
             filename = secure_filename(username + '.jpg')
             # copy Default.jpg to username.jpg
@@ -197,10 +205,10 @@ def create_event():
             db.session.commit()
             return redirect(url_for('home'))
         else:
-            print(form.errors)
+            pass
         return render_template('create_event.html', form=form, profile_picture=picture, friendsList=friendsList)
     else:
-        return render_template('index.html')
+        return redirect(url_for('home'))
 
 @app.route('/event/<eventId>', methods=('GET', 'POST'))
 def event(eventId):
@@ -214,7 +222,7 @@ def event(eventId):
             guests.append(User.query.filter_by(id=i.friend_id).first())
         return render_template('event.html', event=event, profile_picture=picture, guests=guests)
     else:
-        return render_template('index.html')
+        return redirect(url_for('home'))
 
 @app.route('/friends', methods=('GET', 'POST'))
 def friends():
@@ -307,7 +315,7 @@ def settings():
         picture = './static/uploads/' + username + '.jpg'
         return render_template('settings.html', profile_picture=picture, username=username)
     else:
-        return render_template('index.html')
+        return redirect(url_for('home'))
 
 @app.route('/calendar_data', methods=('GET', 'POST'))
 def calendar_data():
@@ -330,7 +338,7 @@ def calendar_data():
             data.append({'name': i.name, 'date': i.date, 'id' : str(i.id), 'status' : "invited"})
         return data
     else:
-        return render_template('index.html')
+        return redirect(url_for('home'))
 
 # run app on local device for testing
 if __name__=="__main__":
