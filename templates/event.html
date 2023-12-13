@@ -26,12 +26,24 @@
       <p>- {{ guest.username }}</p><br>
     {% endfor %}
     
-    <form method="post" name="acceptEvent">
-      {{ form.hidden_tag() }}
-      <input type="hidden" name="accept_event_id" value="{{ event.id }}">
+    {% if display %}
+      <form method="post" name="acceptEvent">
+        {{ formDeny.hidden_tag() }}
+        <input type="hidden" name="accept_event_id" value="{{ event.id }}">
+        <div>
+          <input class="button" type="submit" id="submit" name="submit" value="Going">
+        </div>
+      </form>
       <div>
-        <input class="button" type="submit" id="submit" name="submit" value="Going">
+        <br>
       </div>
-    </form>
+      <form method="post" name="denyEvent">
+        {{ formDeny.hidden_tag() }}
+        <input type="hidden" name="deny_event_id" value="{{ event.id }}">
+        <div>
+          <input class="button" type="submit" id="submit" name="submit" value="Not Going">
+        </div>
+      </form>
+    {% endif %}
   </div>
 {% endblock %}

@@ -46,3 +46,6 @@ class CancelFriendForm(FlaskForm):
 
 class AcceptEventForm(FlaskForm):
     accept_event_id = IntegerField('ID', validators=[DataRequired()])
+
+class DenyEventForm(FlaskForm):
+    deny_event_id = IntegerField('ID', validators=[DataRequired()])

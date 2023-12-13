@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from flask_bcrypt import Bcrypt
 import os
-from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm, AcceptEventForm
+from forms import LoginForm, RegistrationForm, DeleteAccountForm, NewEventForm, NewFriendForm, RemoveFriendForm, AcceptFriendForm, RejectFriendForm, CancelFriendForm, AcceptEventForm, DenyEventForm
 import shutil
 # from forms import *
 
@@ -212,20 +212,30 @@ def create_event():
 
 @app.route('/event/<eventId>', methods=('GET', 'POST'))
 def event(eventId):
-    form = AcceptEventForm()
+    formAccept = AcceptEventForm()
+    formDeny = DenyEventForm()
     if checkUser():
         username = User.query.filter_by(id=session['userID']).first().username
         picture = './static/uploads/' + username + '.jpg'
         event = Event.query.filter_by(id=eventId).first()
+        # check if user made the event
         eventFriends = EventFriend.query.filter_by(event_id=eventId).all()
         guests = []
         for i in eventFriends:
             guests.append(User.query.filter_by(id=i.friend_id).first())
-        if form.validate_on_submit():
-            eventFriend = EventFriend.query.filter_by(event_id=eventId, friend_id=session['userID']).first()
-            eventFriend.accepted = 1
-            db.session.commit()
-        return render_template('event.html', form=form, event=event, profile_picture=picture, guests=guests)
+        if event.user_id != session['userID']:
+            if formAccept.validate_on_submit():
+                eventFriend = EventFriend.query.filter_by(event_id=eventId, friend_id=session['userID']).first()
+                eventFriend.accepted = 1
+                db.session.commit()
+            if formDeny.validate_on_submit():
+                eventFriend = EventFriend.query.filter_by(event_id=eventId, friend_id=session['userID']).first()
+                eventFriend.accepted = 0
+                db.session.commit()
+            display = True
+        else: # user made the event
+            display = False
+        return render_template('event.html', formAccept=formAccept, formDeny=formDeny, event=event, profile_picture=picture, guests=guests, display=display)
     else:
         return redirect(url_for('home'))
 

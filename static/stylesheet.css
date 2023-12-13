@@ -128,7 +128,7 @@ nav img {
   width: 80%;
 }
 .made {
-  background-color: #28a745;
+  background-color: #1C7C54;
   width: 100%;
   padding: 5px;
   margin: 5px;
@@ -138,22 +138,9 @@ nav img {
   text-align: left;
 }
 .made:hover {
-  background: linear-gradient(to right, #1C7C54, #588D4B);
+  background: linear-gradient(to right, #1C7C54, #e5a027);
 }
 .accepted {
-  background-color: #007bff;
-  width: 100%;
-  padding: 5px;
-  margin: 5px;
-  border-radius: 10px;
-  border-collapse: collapse;
-  color: white;
-  text-align: left;
-}
-.accepted:hover {
-  background: linear-gradient(to right, #540D6E, #4c8bb6);
-}
-.invited {
   background-color: #0749B4;
   width: 100%;
   padding: 5px;
@@ -163,8 +150,21 @@ nav img {
   color: white;
   text-align: left;
 }
-.invited:hover {
+.accepted:hover {
   background: linear-gradient(to right, #0749B4, #e5a027);
+}
+.invited {
+  background-color: #a23e00;
+  width: 100%;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 10px;
+  border-collapse: collapse;
+  color: white;
+  text-align: left;
+}
+.invited:hover {
+  background: linear-gradient(to right, #a23e00, #e5a027);
 }
 
 
