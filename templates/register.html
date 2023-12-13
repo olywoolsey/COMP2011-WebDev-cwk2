@@ -12,19 +12,19 @@
     <form method='post' name="Register">
       {{ form.hidden_tag() }}
       <div>
-        <label for="username">Username:</label>
+        <label for="username">Username: </label>
         {{ form.username }}
       </div>
       <div>
-        <label for="email">Email:</label>
+        <label for="email">Email: </label>
         {{ form.email }}
       </div>
       <div>
-        <label for="password1">Password:</label>
+        <label for="password1">Password: </label>
         {{ form.password1 }}
       </div>
       <div>
-        <label for="password2">Password:</label>
+        <label for="password2">Confirm Password: </label>
         {{ form.password2 }}
       </div>
         {{ get_flashed_messages()[0] }}
